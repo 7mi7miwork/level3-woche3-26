@@ -64,3 +64,32 @@ while not game_over:
     # Kollision mit Wänden
     if new_head[0] >= width or new_head[0] < 0 or new_head[1] >= height or new_head[1] < 0:
         game_over = True
+    
+    # Kollision mit sich selbst
+    if new_head in snake:
+        game_over = True
+        
+    # Neuer Kopf der Schlange hinzufügen
+    snake.append(new_head)
+    
+    # Essen essen?
+    if new_head == food:
+        score += 1
+        food = (random.randint(0, (width - snake_size)//snake_size)*snake_size, 
+                random.randint(0, (height - snake_size)//snake_size)*snake_size)
+        
+    else:
+        snake.pop(0) # Schwanz entfernen, wenn kein Essen gegessen wurde
+
+    # Bildschirm zeichnen
+    screen.fill(BLACK)
+    draw_snake(snake)
+    draw_food(food)
+    
+    # Punktestand anzeigen
+    score_text = font.render(f'Score: {score}', True, WHITE)
+    screen.blit(score_text, [0, 0])
+    
+    pygame.display.update()
+    clock.tick(snake_speed)
+    
