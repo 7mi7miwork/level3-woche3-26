@@ -1,3 +1,5 @@
+
+You said:
 import pygame
 import random
 import sys
@@ -32,7 +34,7 @@ def draw_snake(snake_list):
         pygame.draw.rect(screen, GREEN, (*segment, snake_size, snake_size))
         
 def draw_food(food_pos):
-    pygame.draw.rect(screen, GREEN, [segment[0], segment[1], snake_size, snake_size])
+    pygame.draw.rect(screen, RED, [food_pos[0], food_pos[1], snake_size, snake_size])
     
 def message(msg, color):
     text = font.render(msg, True, color)
@@ -93,3 +95,23 @@ while not game_over:
     pygame.display.update()
     clock.tick(snake_speed)
     
+# Game Over Bildschirm
+screen.fill(BLACK)
+message("Game Over! Druecke Q zum Beenden oder C zum Neustarten", WHITE)
+pygame.display.update()
+
+waiting = True
+while waiting:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                pygame.quit()
+                sys.exit()
+            if event.key == pygame.K_c:
+                # Spiel neustarten
+                exec(open(__file__).read())
+                
+pygame.quit()
