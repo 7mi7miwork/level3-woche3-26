@@ -1,5 +1,3 @@
-
-You said:
 import pygame
 import random
 import sys
@@ -115,3 +113,4 @@ while waiting:
                 exec(open(__file__).read())
                 
 pygame.quit()
+
