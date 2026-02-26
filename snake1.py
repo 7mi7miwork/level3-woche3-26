@@ -1,12 +1,10 @@
-
-You said:
 import pygame
 import random
 import sys
 
 # Initialisierung
 pygame.init()
-width, height = 600, 400
+width, height = 600, 400 # 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Snake Game')
 clock = pygame.time.Clock()
