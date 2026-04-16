@@ -1,6 +1,5 @@
 import pygame
 import random
-import math
 
 pygame.init()
 
@@ -20,15 +19,22 @@ BLUE = (135, 206, 235)
 YELLOW = (255, 230, 0)
 
 # Spieler
-player = pygame.Rect(100, 100, 40, 40)
+player = pygame.Rect(100, 120, 40, 40)
 speed = 5
 
 # Ei Klasse
 class Egg:
-    def __init__(self):
-        self.x = random.randint(50, WIDTH-50)
-        self.y = random.randint(100, HEIGHT-50)
-        self.size = random.randint(15, 25)
+    def __init__(self, obstacles):
+        while True:
+            self.size = random.randint(15, 25)
+            self.x = random.randint(20, WIDTH - self.size - 20)
+            self.y = random.randint(120, HEIGHT - self.size - 20)
+            rect = pygame.Rect(self.x, self.y, self.size, self.size)
+
+            # nicht in Hindernissen spawnen
+            if not any(rect.colliderect(o) for o in obstacles):
+                break
+
         self.color = random.choice([(255,0,0),(255,255,0),(0,255,255),(255,0,255)])
         self.collected = False
 
@@ -53,19 +59,34 @@ start_ticks = pygame.time.get_ticks()
 # Hindernis
 obstacles = []
 
+def safe_player_spawn():
+    global player
+    while True:
+        new_player = pygame.Rect(random.randint(20, WIDTH-60), random.randint(120, HEIGHT-60), 40, 40)
+        if not any(new_player.colliderect(o) for o in obstacles):
+            return new_player
+
+
 def create_level(level):
-    global eggs, obstacles, time_left, start_ticks
-    eggs = [Egg() for _ in range(level * 5)]
+    global eggs, obstacles, time_left, start_ticks, player
+
+    # Hindernisse zuerst erzeugen
     obstacles = []
     for _ in range(level * 2):
-        obstacles.append(pygame.Rect(random.randint(0, WIDTH-60), random.randint(100, HEIGHT-60), 60, 60))
+        obstacles.append(pygame.Rect(random.randint(20, WIDTH-80), random.randint(120, HEIGHT-80), 60, 60))
+
+    # Spieler sicher platzieren
+    player = safe_player_spawn()
+
+    # Eier erzeugen (nicht in Hindernissen)
+    eggs = [Egg(obstacles) for _ in range(level * 5)]
+
     time_left = 30 + level * 5
     start_ticks = pygame.time.get_ticks()
 
 create_level(level)
 
 running = True
-win = False
 
 while running:
     screen.fill(BLUE)
@@ -83,8 +104,14 @@ while running:
     if keys[pygame.K_UP]: dy = -speed
     if keys[pygame.K_DOWN]: dy = speed
 
-    # Bewegung mit Kollisionsprüfung
+    # Bewegung vorbereiten
     new_player = player.move(dx, dy)
+
+    # Bildschirmbegrenzung (Fix gegen rauslaufen)
+    new_player.x = max(0, min(WIDTH - player.width, new_player.x))
+    new_player.y = max(100, min(HEIGHT - player.height, new_player.y))
+
+    # Kollisionsprüfung mit Hindernissen
     if not any(new_player.colliderect(o) for o in obstacles):
         player = new_player
 
